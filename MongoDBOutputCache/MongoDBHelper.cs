@@ -6,10 +6,13 @@ namespace MongoDBOutputCache
     {
         public static MongoDatabase GetDatabase(string connectionString)
         {
-            var url = new MongoUrl(connectionString);
+            var position = connectionString.LastIndexOf("/");
+            var databaseName = connectionString.Substring(position + 1);
+            var url = new MongoUrl(connectionString.Substring(0, position));
             var client = new MongoClient(url);
             var server = client.GetServer();
-            return server.GetDatabase(url.DatabaseName);
+            var database = server.GetDatabase(databaseName);
+            return database;
         }
     }
 }
