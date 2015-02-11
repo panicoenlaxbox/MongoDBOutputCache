@@ -12,24 +12,27 @@ namespace MongoDBOutputCache
     /// <remarks>http://msdn.microsoft.com/en-us/magazine/gg650661.aspx</remarks>
     public class MongoDBOutputCacheProvider : OutputCacheProvider
     {
-        private MongoCollection<CacheItem> _collection;
+        private readonly string _collectionName;
+        private readonly string _connectionString;
+        private readonly string _databaseName;
 
         public MongoDBOutputCacheProvider()
         {
-            var connectionString = ConfigurationManager.AppSettings["MongoDBOutputCacheProviderConnectionString"];
-            var collectionName = ConfigurationManager.AppSettings["MongoDBOutputCacheProviderCollection"];
-            _collection = MongoDBHelper.GetDatabase(connectionString).GetCollection<CacheItem>(collectionName);
+            _connectionString = ConfigurationManager.AppSettings[Constants.MongoDBOutputCacheProviderConnectionString];
+            _collectionName = ConfigurationManager.AppSettings[Constants.MongoDBOutputCacheProviderCollectionName];
+            _databaseName = ConfigurationManager.AppSettings[Constants.MongoDBOutputCacheProviderDatabaseName];
         }
 
         public override object Add(string key, object entry, DateTime utcExpiry)
         {
-            var item = _collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
+            var collection = GetCollection();
+            var item = collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
 
             if (item != null)
             {
                 if (item.Expiration <= DateTime.UtcNow)
                 {
-                    _collection.Remove(Query<CacheItem>.EQ(p => p.Id, item.Id));
+                    collection.Remove(Query<CacheItem>.EQ(p => p.Id, item.Id));
                 }
                 else
                 {
@@ -37,7 +40,7 @@ namespace MongoDBOutputCache
                 }
             }
 
-            _collection.Insert(new CacheItem
+            collection.Insert(new CacheItem
             {
                 Id = key,
                 Item = BinarySerializer.Serialize(entry),
@@ -50,13 +53,14 @@ namespace MongoDBOutputCache
 
         public override object Get(string key)
         {
-            var cacheItem = _collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
+            var collection = GetCollection();
+            var cacheItem = collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
 
             if (cacheItem != null)
             {
                 if (cacheItem.Expiration <= DateTime.UtcNow)
                 {
-                    _collection.Remove(Query<CacheItem>.EQ(p => p.Id, cacheItem.Id));
+                    collection.Remove(Query<CacheItem>.EQ(p => p.Id, cacheItem.Id));
                 }
                 else
                 {
@@ -69,22 +73,23 @@ namespace MongoDBOutputCache
 
         public override void Remove(string key)
         {
-            _collection.Remove(Query<CacheItem>.EQ(p => p.Id, key));
+            GetCollection().Remove(Query<CacheItem>.EQ(p => p.Id, key));
         }
 
         public override void Set(string key, object entry, DateTime utcExpiry)
         {
-            var item = _collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
+            var collection = GetCollection();
+            var item = collection.FindOne(Query<CacheItem>.EQ(p => p.Id, key));
 
             if (item != null)
             {
                 item.Item = BinarySerializer.Serialize(entry);
                 item.Expiration = utcExpiry;
-                _collection.Save(item);
+                collection.Save(item);
             }
             else
             {
-                _collection.Insert(new CacheItem
+                collection.Insert(new CacheItem
                 {
                     Id = key,
                     Item = BinarySerializer.Serialize(entry),
@@ -92,6 +97,11 @@ namespace MongoDBOutputCache
                     CreatedDate = DateTime.UtcNow
                 });
             }
+        }
+
+        private MongoCollection<CacheItem> GetCollection()
+        {
+            return MongoDBHelper.GetCollection<CacheItem>(_connectionString, _databaseName, _collectionName);
         }
     }
 }

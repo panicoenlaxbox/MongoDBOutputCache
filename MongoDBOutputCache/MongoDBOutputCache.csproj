@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CacheItem.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="MongoDBChildActionCache.cs" />
     <Compile Include="MongoDBHelper.cs" />
     <Compile Include="MongoDBOutputCacheProvider.cs" />

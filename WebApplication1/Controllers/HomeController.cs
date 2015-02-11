@@ -10,7 +10,7 @@ namespace WebApplication1.Controllers
 {
     public class HomeController : Controller
     {
-        [OutputCache(Duration = 60, Location = OutputCacheLocation.Server, VaryByParam = "*")]
+        [OutputCache(Duration = 10, Location = OutputCacheLocation.Server, VaryByParam = "*")]
         public ActionResult Index()
         {
             return View();
@@ -23,18 +23,15 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-         [OutputCache(Duration = 60, VaryByParam = "*")]
+        [OutputCache(Duration = 5, VaryByParam = "*")]
         public PartialViewResult Information()
         {
             return PartialView();
         }
 
-        [OutputCache(Duration = 60, Location = OutputCacheLocation.Server, VaryByParam = "*")]
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";
-
-            Response.RemoveOutputCacheItem(Url.Action("Information"));
 
             return View();
         }
