@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MongoDBOutputCache")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("ASP.NET OuputCacheProvider with MongoDB")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("panicoenlaxbox")]
 [assembly: AssemblyProduct("MongoDBOutputCache")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
