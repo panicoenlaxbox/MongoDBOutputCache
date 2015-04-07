@@ -3,6 +3,12 @@ MongoDBOutputCache
 
 Proveedor personalizado de cache para ASP.NET MVC
 
+      <outputCache defaultProvider="AspNetMongoDB">
+        <providers>
+          <add name="AspNetMongoDB" type="MongoDBOutputCache.MongoDBOutputCacheProvider" />
+        </providers>
+      </outputCache>
+
 Espera encontrar los siguientes valores en AppSettings:
 
     <add key="MongoDBOutputCacheProviderConnectionString" value="mongodb://localhost" />
